@@ -51,6 +51,8 @@ function wire() {
   document.querySelector('#boatDiscount').onchange = onDiscountChange;
   document.querySelector('#accDiscount').onchange = onDiscountChange;
   document.querySelector('#saveServer').onclick = saveOnline;
+  ['firstName','lastName','configurationName'].forEach(id => document.querySelector('#'+id).addEventListener('input', updateSaveValidation));
+  updateSaveValidation();
   document.querySelector('#findSaved').onclick = findSaved;
 }
 
@@ -192,13 +194,52 @@ function renderSummary() {
     <div class="total"><span>Totale</span><span>${euro(pricing.netTotal)}</span></div>`;
 }
 
+function requiredFields() {
+  return [
+    { id: 'firstName', message: 'Inserisci il nome.' },
+    { id: 'lastName', message: 'Inserisci il cognome.' },
+    { id: 'configurationName', message: 'Inserisci un nome per la configurazione.' }
+  ];
+}
+
+function updateSaveValidation() {
+  let valid = true;
+  requiredFields().forEach(({ id }) => {
+    const input = document.querySelector('#' + id);
+    const empty = !input.value.trim();
+    input.classList.toggle('field-invalid', empty && input.dataset.touched === 'true');
+    valid = valid && !empty;
+  });
+  document.querySelector('#saveServer').disabled = !valid;
+}
+
+function validateSavedFields() {
+  let firstInvalid = null;
+  requiredFields().forEach(({ id, message }) => {
+    const input = document.querySelector('#' + id);
+    input.dataset.touched = 'true';
+    const empty = !input.value.trim();
+    input.classList.toggle('field-invalid', empty);
+    let error = document.querySelector('#' + id + '-error');
+    if (!error) {
+      error = document.createElement('span');
+      error.id = id + '-error';
+      error.className = 'field-error';
+      input.insertAdjacentElement('afterend', error);
+    }
+    error.textContent = empty ? message : '';
+    if (empty && !firstInvalid) firstInvalid = input;
+  });
+  updateSaveValidation();
+  if (firstInvalid) firstInvalid.focus();
+  return !firstInvalid;
+}
+
 function savedPayload() {
+  if (!validateSavedFields()) throw new Error('VALIDATION_FIELDS');
   const firstName = document.querySelector('#firstName').value.trim();
   const lastName = document.querySelector('#lastName').value.trim();
   const configurationName = document.querySelector('#configurationName').value.trim();
-  if (!firstName || !lastName || !configurationName) {
-    throw new Error('Compila nome, cognome e nome configurazione.');
-  }
   return {
     configurationName,
     customer: {
