@@ -184,7 +184,30 @@ function validateFields(){let first=null;requiredFields().forEach(({id,message})
 function payload(){if(!validateFields())throw new Error('VALIDATION_FIELDS');return{configurationName:document.querySelector('#configurationName').value.trim(),customer:{firstName:document.querySelector('#firstName').value.trim(),lastName:document.querySelector('#lastName').value.trim(),company:document.querySelector('#company').value.trim()},modelCode:'BS120OB',catalogVersion:catalog.model.catalogVersion,selectedOptions:selected,discounts,pricingSnapshot:result.pricing};}
 
 async function saveOnline(){try{const body=payload();const url=currentSavedCode?`/api/v1/saved-configurations/${encodeURIComponent(currentSavedCode)}`:'/api/v1/saved-configurations';const saved=await api(url,{method:currentSavedCode?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});currentSavedCode=saved.configurationCode;alert(`${t('saved')} ${currentSavedCode}`);await findSaved(false);}catch(e){if(e.message!=='VALIDATION_FIELDS')alert(e.message);}}
-async function generatePdf(){try{const body=payload();const response=await fetch('/api/v1/documents/quote.pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!response.ok)throw new Error(t('pdfFailed'));const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=(body.configurationName||'configuration').replace(/[^a-zA-Z0-9_-]+/g,'_')+'.pdf';a.click();URL.revokeObjectURL(url);}catch(e){if(e.message!=='VALIDATION_FIELDS')alert(e.message);}}
+async function generatePdf(){
+  const button=document.querySelector('#generatePdf');
+  try{
+    const body=payload();
+    setPdfBusy(true);
+    const response=await fetch('/api/v1/documents/quote.pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!response.ok){let message=t('pdfFailed');try{message=(await response.json()).detail||message;}catch(_){}throw new Error(message);}
+    const blob=await response.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=(body.configurationName||'configuration').replace(/[^a-zA-Z0-9_-]+/g,'_')+'.pdf';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }catch(e){if(e.message!=='VALIDATION_FIELDS')alert(e.message);}
+  finally{setPdfBusy(false);}
+}
+function setPdfBusy(busy){
+  const button=document.querySelector('#generatePdf');
+  button.disabled=busy||!document.querySelector('#firstName').value.trim()||!document.querySelector('#lastName').value.trim()||!document.querySelector('#configurationName').value.trim();
+  button.innerHTML=busy?'<span class="button-spinner"></span>'+ (uiLanguage==='IT'?'Generazione...':'Generating...'):t('generatePdf');
+  let overlay=document.querySelector('#pdfBusyOverlay');
+  if(!overlay){overlay=document.createElement('div');overlay.id='pdfBusyOverlay';overlay.className='pdf-busy-overlay';overlay.innerHTML='<div class="pdf-busy-card"><span class="pdf-spinner"></span><strong id="pdfBusyTitle"></strong><span id="pdfBusyText"></span></div>';document.body.appendChild(overlay);}
+  document.querySelector('#pdfBusyTitle').textContent=uiLanguage==='IT'?'Creazione PDF':'Generating PDF';
+  document.querySelector('#pdfBusyText').textContent=uiLanguage==='IT'?'Attendi qualche secondo...':'Please wait a few seconds...';
+  overlay.classList.toggle('visible',busy);
+}
 async function findSaved(ask=true){try{const query=ask?(prompt(t('searchPrompt'),'')??''):'';const data=await api(`/api/v1/saved-configurations?query=${encodeURIComponent(query)}`);document.querySelector('#savedPanel').innerHTML=data.items.length?data.items.map(savedCard).join(''):`<p>${t('noneSaved')}</p>`;}catch(e){alert(e.message);}}
 function savedCard(item){const c=item.customer||{};const company=c.company?` - ${esc(c.company)}`:'';const date=item.updatedAt?new Date(item.updatedAt).toLocaleString(uiLanguage==='IT'?'it-IT':'en-GB'):'';return`<div class="saved-item"><b>${esc(item.configurationCode)} - ${esc(item.configurationName)}</b><div>${esc(c.firstName||'')} ${esc(c.lastName||'')}${company}</div><div>${euro(item.pricingSnapshot?.netTotal||0)} - ${esc(date)}</div><div class="saved-actions"><button type="button" onclick="openSaved('${item.configurationCode}')">${t('open')}</button><button type="button" onclick="deleteSaved('${item.configurationCode}')">${t('delete')}</button></div></div>`;}
 async function openSaved(code){const item=await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`);currentSavedCode=item.configurationCode;selected=item.selectedOptions||[];discounts=item.discounts||{boatPct:0,accessoriesPct:0};document.querySelector('#firstName').value=item.customer?.firstName||'';document.querySelector('#lastName').value=item.customer?.lastName||'';document.querySelector('#company').value=item.customer?.company||'';document.querySelector('#configurationName').value=item.configurationName||'';document.querySelector('#boatDiscount').value=discounts.boatPct;document.querySelector('#accDiscount').value=discounts.accessoriesPct;activeGroup=catalog.groups[0].code;updateSaveValidation();await evaluate();}
