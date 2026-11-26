@@ -105,8 +105,8 @@ function setLabel(id, text) {
 
 function applyStaticTranslations() {
   document.documentElement.lang = uiLanguage.toLowerCase();
-  document.querySelector('header p').textContent = t('subtitle');
-  document.querySelector('aside h2').textContent = t('configuration');
+  const subtitleElement = document.querySelector('header p'); if (subtitleElement) subtitleElement.textContent = t('subtitle');
+  const configurationHeading = document.querySelector('aside h2'); if (configurationHeading) configurationHeading.textContent = t('configuration');
   document.querySelector('#reset').textContent = t('reset');
   document.querySelector('#saveServer').textContent = t('saveOnline');
   document.querySelector('#generatePdf').textContent = t('generatePdf');
