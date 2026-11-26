@@ -1,4 +1,4 @@
-# CPQ Core ITB - POC Novamarine v2
+﻿# ITB Configuration Engine - POC Novamarine
 
 ## Requisito locale
 Usare Python 3.13 (non Python 3.15).
@@ -21,3 +21,4 @@ Aprire http://localhost:8000. Swagger: http://localhost:8000/docs.
 - Test automatico degli asset statici.
 
 Visual in this file was generated with Microsoft Copilot.
+

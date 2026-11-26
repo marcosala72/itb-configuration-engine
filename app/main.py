@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import json
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +9,7 @@ CAT=json.loads((ROOT/'data/catalog.json').read_text(encoding='utf-8')); RULES=js
 OPTIONS={o['code']:o for o in CAT['options']}
 class Discounts(BaseModel): boatPct:float=Field(default=0,ge=0,le=100); accessoriesPct:float=Field(default=0,ge=0,le=100)
 class EvaluateRequest(BaseModel): modelCode:str='BS120OB'; selectedOptions:list[str]=[]; discounts:Discounts=Discounts()
-app=FastAPI(title='CPQ Core ITB - Novamarine POC',version='0.2.0'); app.mount('/static',StaticFiles(directory=ROOT/'static'),name='static')
+app=FastAPI(title='ITB Configuration Engine - Novamarine',version='0.2.0'); app.mount('/static',StaticFiles(directory=ROOT/'static'),name='static')
 @app.get('/')
 def index(): return FileResponse(ROOT/'static/index.html')
 @app.get('/health')
@@ -46,3 +46,4 @@ def evaluate(req:EvaluateRequest):
  bd=round(boat*req.discounts.boatPct/100,2); ad=round(accessories*req.discounts.accessoriesPct/100,2); total=round(boat+accessories+fixed-bd-ad,2)
  states=[{**o,'selected':c in ss,'available':c not in disabled,'disabledReason':disabled.get(c)} for c,o in OPTIONS.items()]
  return {'valid':not violations,'modelCode':req.modelCode,'catalogVersion':CAT['model']['catalogVersion'],'selectedOptions':selected,'options':states,'violations':violations,'appliedRules':applied,'pricing':{'boatSubtotal':boat,'accessoriesSubtotal':accessories+fixed,'discountTotal':bd+ad,'netTotal':total,'currency':'EUR'}}
+
