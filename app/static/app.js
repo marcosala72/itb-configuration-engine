@@ -1,4 +1,4 @@
-﻿let catalog, result, activeGroup, selected = [], discounts = { boatPct: 0, accessoriesPct: 0 };
+let catalog, result, activeGroup, selected = [], discounts = { boatPct: 0, accessoriesPct: 0 };
 
 const euro = n => new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -10,7 +10,7 @@ async function init() {
   catalog = await fetch('/api/v1/models/BS120OB').then(r => r.json());
   activeGroup = catalog.groups[0].code;
 
-  const saved = localStorage.getItem('itb-cpq-poc-v2');
+  const saved = null;
   if (saved) {
     try {
       const state = JSON.parse(saved);
@@ -221,7 +221,7 @@ async function findSaved() {
   const response = await fetch(`/api/v1/saved-configurations?query=${encodeURIComponent(query)}`);
   if (!response.ok) { alert('Ricerca non disponibile'); return; }
   const data = await response.json();
-  document.querySelector('#savedPanel').innerHTML = data.items.length ? data.items.map(item => `<div class="saved-item"><b>${item.configurationCode} - ${item.configurationName}</b>${item.customer.firstName} ${item.customer.lastName}${item.customer.company ? ' Â· '+item.customer.company : ''}<div>${euro(item.pricingSnapshot?.netTotal || 0)} Â· ${new Date(item.updatedAt).toLocaleString('it-IT')}</div><div class="saved-actions"><button onclick="openSaved('${item.configurationCode}')">Apri</button><button onclick="deleteSaved('${item.configurationCode}')">Elimina</button></div></div>`).join('') : '<p>Nessuna configurazione trovata.</p>';
+  document.querySelector('#savedPanel').innerHTML = data.items.length ? data.items.map(item => `<div class="saved-item"><b>${item.configurationCode} - ${item.configurationName}</b>${item.customer.firstName} ${item.customer.lastName}${item.customer.company ? '  -  '+item.customer.company : ''}<div>${euro(item.pricingSnapshot?.netTotal || 0)}  -  ${new Date(item.updatedAt).toLocaleString('it-IT')}</div><div class="saved-actions"><button onclick="openSaved('${item.configurationCode}')">Apri</button><button onclick="deleteSaved('${item.configurationCode}')">Elimina</button></div></div>`).join('') : '<p>Nessuna configurazione trovata.</p>';
 }
 
 async function openSaved(code) {

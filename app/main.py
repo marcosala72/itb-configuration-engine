@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import json
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
