@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 from fastapi import HTTPException, Query
 from app.storage import GitHubJsonRepository, StorageError
@@ -110,3 +110,39 @@ def delete_saved_configuration(code: str):
         raise HTTPException(status_code=404, detail='Configurazione non trovata')
     except StorageError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
+
+@app.post('/api/v1/documents/quote.pdf')
+def generate_quote_pdf(request: SavedConfigurationRequest):
+    from app.pdf.service import build_pdf
+    evaluation = evaluate(EvaluateRequest(
+        modelCode=request.modelCode,
+        selectedOptions=request.selectedOptions,
+        discounts=request.discounts,
+    ))
+    data = request.model_dump()
+    pdf = build_pdf(data, CAT, evaluation)
+    name = request.configurationName.replace(' ', '_')[:60] or 'configurazione'
+    return Response(
+        content=pdf,
+        media_type='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename="{name}.pdf"'},
+    )
+
+@app.get('/api/v1/saved-configurations/{code}/quote.pdf')
+def generate_saved_quote_pdf(code: str):
+    from app.pdf.service import build_pdf
+    try:
+        data = configuration_repository().get(code)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail='Configurazione non trovata')
+    evaluation = evaluate(EvaluateRequest(
+        modelCode=data.get('modelCode', 'BS120OB'),
+        selectedOptions=data.get('selectedOptions', []),
+        discounts=Discounts(**data.get('discounts', {})),
+    ))
+    pdf = build_pdf(data, CAT, evaluation)
+    return Response(
+        content=pdf,
+        media_type='application/pdf',
+        headers={'Content-Disposition': f'attachment; filename="{code}.pdf"'},
+    )

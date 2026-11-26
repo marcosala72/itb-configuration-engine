@@ -51,6 +51,7 @@ function wire() {
   document.querySelector('#boatDiscount').onchange = onDiscountChange;
   document.querySelector('#accDiscount').onchange = onDiscountChange;
   document.querySelector('#saveServer').onclick = saveOnline;
+  document.querySelector('#generatePdf').onclick = generatePdf;
   ['firstName','lastName','configurationName'].forEach(id => document.querySelector('#'+id).addEventListener('input', updateSaveValidation));
   updateSaveValidation();
   document.querySelector('#findSaved').onclick = findSaved;
@@ -332,6 +333,31 @@ async function deleteSaved(code) {
   }
 }
 
+
+async function generatePdf() {
+  try {
+    const payload = savedPayload();
+    const response = await fetch('/api/v1/documents/quote.pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      let message = 'Generazione PDF non riuscita';
+      try { message = (await response.json()).detail || message; } catch (_) {}
+      throw new Error(message);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = (payload.configurationName || 'configurazione').replace(/[^a-zA-Z0-9_-]+/g, '_') + '.pdf';
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    if (error.message !== 'VALIDATION_FIELDS') alert(error.message);
+  }
+}
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
