@@ -294,4 +294,78 @@ function closeSelectedItemsDrawer() {
   if (drawer) drawer.classList.remove('visible');
   document.body.classList.remove('drawer-open');
 }
+
+/* ITB_SUMMARY_DRAWER_V2_START */
+const formatEuroEuropean = value => {
+  const number = Number(value || 0);
+  const fractional = Math.abs(number - Math.round(number)) > 0.000001;
+  const formatted = new Intl.NumberFormat('it-IT', {
+    minimumFractionDigits: fractional ? 2 : 0,
+    maximumFractionDigits: fractional ? 2 : 0
+  }).format(number);
+  return String.fromCharCode(0x20AC) + ' ' + formatted;
+};
+
+euro = formatEuroEuropean;
+
+renderSummary = function() {
+  const picks = result.options.filter(option => option.selected);
+  const visible = picks.slice(0, 4);
+  const hiddenCount = Math.max(0, picks.length - visible.length);
+  const rows = visible.map(option => `<div class="pick"><span>${esc(option.name)}</span><b>${formatEuroEuropean(option.price)}</b></div>`).join('');
+  const moreButton = hiddenCount > 0
+    ? `<button type="button" class="selected-more-button" onclick="openSelectedItemsDrawerV2()">+${hiddenCount} ${uiLanguage === 'IT' ? 'altri elementi selezionati' : 'more selected items'} <span aria-hidden="true">&#8594;</span></button>`
+    : '';
+  document.querySelector('#selected').innerHTML = picks.length ? rows + moreButton : `<p>${t('noSelection')}</p>`;
+  const p = result.pricing;
+  document.querySelector('#pricing').innerHTML = `
+    <div class="sub"><span>${t('boat')}</span><b>${formatEuroEuropean(p.boatSubtotal)}</b></div>
+    <div class="sub"><span>${t('accessories')}</span><b>${formatEuroEuropean(p.accessoriesSubtotal)}</b></div>
+    <div class="sub"><span>${t('discounts')}</span><b>-${formatEuroEuropean(p.discountTotal)}</b></div>
+    <div class="total"><span>${t('total')}</span><span>${formatEuroEuropean(p.netTotal)}</span></div>`;
+};
+
+function ensureSelectedDrawerV2() {
+  let drawer = document.querySelector('#selectedItemsDrawerV2');
+  if (drawer) return drawer;
+  drawer = document.createElement('div');
+  drawer.id = 'selectedItemsDrawerV2';
+  drawer.className = 'selected-drawer-v2';
+  drawer.innerHTML = `
+    <div class="selected-drawer-backdrop-v2" onclick="closeSelectedItemsDrawerV2()"></div>
+    <section class="selected-drawer-panel-v2" role="dialog" aria-modal="true" aria-labelledby="selectedDrawerTitleV2">
+      <header class="selected-drawer-head-v2">
+        <div><span>${uiLanguage === 'IT' ? 'CONFIGURAZIONE' : 'CONFIGURATION'}</span><h2 id="selectedDrawerTitleV2">${uiLanguage === 'IT' ? 'Elementi selezionati' : 'Selected items'}</h2></div>
+        <button type="button" onclick="closeSelectedItemsDrawerV2()" aria-label="Close">&times;</button>
+      </header>
+      <div id="selectedDrawerListV2" class="selected-drawer-list-v2"></div>
+      <footer id="selectedDrawerFooterV2" class="selected-drawer-footer-v2"></footer>
+    </section>`;
+  document.body.appendChild(drawer);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeSelectedItemsDrawerV2(); });
+  return drawer;
+}
+
+function openSelectedItemsDrawerV2() {
+  const drawer = ensureSelectedDrawerV2();
+  const picks = result.options.filter(option => option.selected);
+  document.querySelector('#selectedDrawerTitleV2').textContent = uiLanguage === 'IT' ? 'Elementi selezionati' : 'Selected items';
+  document.querySelector('#selectedDrawerListV2').innerHTML = picks.map((option, index) => `
+    <article class="drawer-item-v2">
+      <span>${String(index + 1).padStart(2, '0')}</span>
+      <img src="${option.image}" alt="">
+      <div><strong>${esc(option.name)}</strong><small>${esc(option.code)}</small></div>
+      <b>${formatEuroEuropean(option.price)}</b>
+    </article>`).join('');
+  document.querySelector('#selectedDrawerFooterV2').innerHTML = `<span>${uiLanguage === 'IT' ? 'Totale configurazione' : 'Configuration total'}</span><strong>${formatEuroEuropean(result.pricing.netTotal)}</strong>`;
+  drawer.classList.add('visible');
+  document.body.classList.add('drawer-open-v2');
+}
+
+function closeSelectedItemsDrawerV2() {
+  const drawer = document.querySelector('#selectedItemsDrawerV2');
+  if (drawer) drawer.classList.remove('visible');
+  document.body.classList.remove('drawer-open-v2');
+}
+/* ITB_SUMMARY_DRAWER_V2_END */
 init();
