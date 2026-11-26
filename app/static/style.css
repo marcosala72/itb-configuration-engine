@@ -40,3 +40,18 @@ body{overflow-y:auto;overflow-x:hidden}
 @media(max-height:780px) and (min-width:901px){.summary-hero{height:82px}.customer input{padding:5px 7px}.selected-list{margin:7px 0}.pick{padding:3px 0}.discount{margin:6px 0}.actions button{padding:7px 5px}.demo-note{display:none}}
 @media(max-width:900px){.progress-column,.summary-column{position:static;height:auto;max-height:none;overflow:visible}.workspace{display:block}.summary-column{padding-bottom:28px}.summary-hero{height:125px}.saved-panel{max-height:none;overflow:visible}}
 /* ITB_STICKY_SUMMARY_FINAL_END */
+/* ITB_CONTROLS_ARCHIVE_FINAL_START */
+/* Hide native number spinners: discount fields use explicit percent text outside. */
+.discount input[type=number]{appearance:textfield;-moz-appearance:textfield;padding-right:8px}
+.discount input[type=number]::-webkit-inner-spin-button,
+.discount input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.discount label{grid-template-columns:minmax(0,1fr) 64px 12px!important}
+.discount input{font-variant-numeric:tabular-nums}
+/* Saved results never create a nested scrollbar. Keep only the first two visible. */
+.saved-panel{max-height:none!important;overflow:visible!important;margin-top:8px}
+.saved-panel .saved-item:nth-of-type(n+3){display:none}
+.saved-panel.has-more:after{content:'VIEW ALL SAVED CONFIGURATIONS';display:block;border:1px solid #111;padding:9px 8px;margin-top:8px;text-align:center;font-size:8px;letter-spacing:.8px;cursor:pointer;background:#fff}
+/* Keep the summary within common laptop heights. */
+.summary-column{overflow:hidden!important}
+@media(max-height:780px) and (min-width:901px){.saved-panel .saved-item:nth-of-type(n+2){display:none}.saved-panel.has-more:after{padding:7px}}
+/* ITB_CONTROLS_ARCHIVE_FINAL_END */
