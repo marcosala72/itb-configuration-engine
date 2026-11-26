@@ -48,7 +48,7 @@ const I18N = {
 };
 
 const t = key => I18N[uiLanguage][key] || I18N.EN[key] || key;
-const euro = value => new Intl.NumberFormat(uiLanguage === 'IT' ? 'it-IT' : 'en-GB', { style:'currency', currency:'EUR', maximumFractionDigits:0 }).format(Number(value || 0));
+const euro = value => new Intl.NumberFormat('it-IT', { style:'currency', currency:'EUR', maximumFractionDigits:2 }).format(Number(value || 0));
 const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 
 async function api(url, options={}) {
@@ -213,4 +213,49 @@ function savedCard(item){const c=item.customer||{};const company=c.company?` - $
 async function openSaved(code){const item=await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`);currentSavedCode=item.configurationCode;selected=item.selectedOptions||[];discounts=item.discounts||{boatPct:0,accessoriesPct:0};document.querySelector('#firstName').value=item.customer?.firstName||'';document.querySelector('#lastName').value=item.customer?.lastName||'';document.querySelector('#company').value=item.customer?.company||'';document.querySelector('#configurationName').value=item.configurationName||'';document.querySelector('#boatDiscount').value=discounts.boatPct;document.querySelector('#accDiscount').value=discounts.accessoriesPct;activeGroup=catalog.groups[0].code;updateSaveValidation();await evaluate();}
 async function deleteSaved(code){if(!confirm(`${t('deleteConfirm')} ${code}?`))return;await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`,{method:'DELETE'});if(currentSavedCode===code)currentSavedCode=null;await findSaved(false);}
 
+
+let selectedSummaryExpanded = false;
+
+function renderCompactSelectedList(picks) {
+  const visible = selectedSummaryExpanded ? picks : picks.slice(0, 4);
+  const hiddenCount = Math.max(0, picks.length - visible.length);
+  const rows = visible.map(option => `<div class="pick"><span>${esc(option.name)}</span><b>${euro(option.price)}</b></div>`).join('');
+  const toggle = picks.length > 4
+    ? `<button type="button" class="selected-toggle" onclick="toggleSelectedSummary()">${selectedSummaryExpanded ? (uiLanguage === 'IT' ? 'Mostra meno' : 'Show less') : '+' + hiddenCount + ' ' + (uiLanguage === 'IT' ? 'altri elementi' : 'more selected items')}</button>`
+    : '';
+  document.querySelector('#selected').innerHTML = picks.length ? rows + toggle : `<p>${t('noSelection')}</p>`;
+}
+
+function toggleSelectedSummary() {
+  selectedSummaryExpanded = !selectedSummaryExpanded;
+  renderSummary();
+}
+
+const originalRenderSummary = renderSummary;
+renderSummary = function() {
+  const picks = result.options.filter(option => option.selected);
+  renderCompactSelectedList(picks);
+  const p = result.pricing;
+  document.querySelector('#pricing').innerHTML = `
+    <div class="sub"><span>${t('boat')}</span><b>${euro(p.boatSubtotal)}</b></div>
+    <div class="sub"><span>${t('accessories')}</span><b>${euro(p.accessoriesSubtotal)}</b></div>
+    <div class="sub"><span>${t('discounts')}</span><b>-${euro(p.discountTotal)}</b></div>
+    <div class="total"><span>${t('total')}</span><span>${euro(p.netTotal)}</span></div>`;
+};
+
+const originalApplyStaticTranslations = applyStaticTranslations;
+applyStaticTranslations = function() {
+  originalApplyStaticTranslations();
+  const heroSmall = document.querySelector('.summary-hero span');
+  const heroStrong = document.querySelector('.summary-hero strong');
+  if (heroSmall) heroSmall.textContent = uiLanguage === 'IT' ? 'LA TUA' : 'YOUR';
+  if (heroStrong) heroStrong.textContent = uiLanguage === 'IT' ? 'CONFIGURAZIONE' : 'CONFIGURATION';
+  const engineLabel = document.querySelector('.engine-label');
+  if (engineLabel) engineLabel.textContent = uiLanguage === 'IT' ? 'MOTORE DI CONFIGURAZIONE ITB' : 'ITB CONFIGURATION ENGINE';
+  const progressLabel = document.querySelector('.progress-heading span');
+  if (progressLabel) progressLabel.textContent = uiLanguage === 'IT' ? 'CONFIGURAZIONE PERSONALE' : 'PERSONAL CONFIGURATION';
+  const welcomeKicker = document.querySelector('.welcome .kicker');
+  if (welcomeKicker) welcomeKicker.textContent = uiLanguage === 'IT' ? 'CONFIGURAZIONE PERSONALE' : 'PERSONAL CONFIGURATION';
+  if (result) renderCompactSelectedList(result.options.filter(option => option.selected));
+};
 init();
