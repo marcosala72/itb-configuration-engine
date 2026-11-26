@@ -55,3 +55,24 @@ body{overflow-y:auto;overflow-x:hidden}
 .summary-column{overflow:hidden!important}
 @media(max-height:780px) and (min-width:901px){.saved-panel .saved-item:nth-of-type(n+2){display:none}.saved-panel.has-more:after{padding:7px}}
 /* ITB_CONTROLS_ARCHIVE_FINAL_END */
+/* ITB_KEEP_ACTIONS_VISIBLE_START */
+.summary-column{height:calc(100vh - 86px)!important;max-height:calc(100vh - 86px)!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
+.summary-hero,.customer,.discount,.pricing,.actions,.demo-note{flex:0 0 auto}
+.selected-list{flex:0 0 auto!important;max-height:none!important;overflow:visible!important;margin:9px 0!important}
+.selected-list .pick{padding:4px 0!important;font-size:9.5px!important;line-height:1.15!important}
+.selected-more{border-bottom:1px solid #d5d0c6;padding:7px 0;color:#666;font-size:8px;letter-spacing:.7px;text-transform:uppercase}
+.selected-toggle{display:none!important}
+.saved-panel{flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;margin-top:8px!important}
+.saved-panel .saved-item:nth-of-type(n+2){display:none!important}
+.saved-panel .saved-item{padding:7px 0!important;font-size:9px!important}
+.summary-column .demo-note{margin-top:auto!important;padding-top:6px!important}
+@media(max-height:820px) and (min-width:901px){
+ .summary-hero{height:78px!important;margin-bottom:9px!important}
+ .customer{gap:4px!important}.customer input{padding:5px 7px!important}
+ .selected-list .pick{padding:3px 0!important}
+ .discount{margin:5px 0!important;gap:3px!important}.discount label{min-height:25px!important}.discount input{padding:5px 6px!important}
+ .sub{padding:2px 0!important}.total{padding-top:7px!important;margin-top:3px!important}.total span:last-child{font-size:23px!important}
+ .actions{margin-top:7px!important}.actions button{padding:7px 5px!important}
+}
+@media(max-width:900px){.summary-column{height:auto!important;max-height:none!important;display:block!important;overflow:visible!important}.saved-panel{overflow:visible!important}.saved-panel .saved-item:nth-of-type(n+2){display:block!important}}
+/* ITB_KEEP_ACTIONS_VISIBLE_END */
