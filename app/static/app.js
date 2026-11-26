@@ -48,7 +48,12 @@ const I18N = {
 };
 
 const t = key => I18N[uiLanguage][key] || I18N.EN[key] || key;
-const euro = value => { const n=Number(value||0); const digits=Number.isInteger(n)?0:2; return 'â‚¬ ' + new Intl.NumberFormat('it-IT',{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(n); };
+const euro = value => {
+  const n = Number(value || 0);
+  const digits = Number.isInteger(n) ? 0 : 2;
+  const amount = new Intl.NumberFormat('it-IT', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+  return String.fromCharCode(0x20AC) + ' ' + amount;
+};
 const esc = value => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
 
 async function api(url, options={}) {
@@ -221,24 +226,12 @@ function renderCompactSelectedList(picks) {
   const hiddenCount = Math.max(0, picks.length - visible.length);
   const rows = visible.map(option => `<div class="pick"><span>${esc(option.name)}</span><b>${euro(option.price)}</b></div>`).join('');
   const more = hiddenCount > 0
-    ? `<div class="selected-more">+${hiddenCount} ${uiLanguage === 'IT' ? 'altri elementi selezionati' : 'more selected items'}</div>`
+    ? `<button type="button" class="selected-more-button" onclick="openSelectedItemsDrawer()">+${hiddenCount} ${uiLanguage === 'IT' ? 'altri elementi selezionati' : 'more selected items'} <span aria-hidden="true">&#8594;</span></button>`
     : '';
   document.querySelector('#selected').innerHTML = picks.length ? rows + more : `<p>${t('noSelection')}</p>`;
 }
 
-function toggleSelectedSummary() { return false; }
-
-const originalRenderSummary = renderSummary;
-renderSummary = function() {
-  const picks = result.options.filter(option => option.selected);
-  renderCompactSelectedList(picks);
-  const p = result.pricing;
-  document.querySelector('#pricing').innerHTML = `
-    <div class="sub"><span>${t('boat')}</span><b>${euro(p.boatSubtotal)}</b></div>
-    <div class="sub"><span>${t('accessories')}</span><b>${euro(p.accessoriesSubtotal)}</b></div>
-    <div class="sub"><span>${t('discounts')}</span><b>-${euro(p.discountTotal)}</b></div>
-    <div class="total"><span>${t('total')}</span><span>${euro(p.netTotal)}</span></div>`;
-};
+function toggleSelectedSummary() { openSelectedItemsDrawer(); };
 
 const originalApplyStaticTranslations = applyStaticTranslations;
 applyStaticTranslations = function() {
@@ -255,4 +248,50 @@ applyStaticTranslations = function() {
   if (welcomeKicker) welcomeKicker.textContent = uiLanguage === 'IT' ? 'CONFIGURAZIONE PERSONALE' : 'PERSONAL CONFIGURATION';
   if (result) renderCompactSelectedList(result.options.filter(option => option.selected));
 };
+
+function ensureSelectedItemsDrawer() {
+  let drawer = document.querySelector('#selectedItemsDrawer');
+  if (drawer) return drawer;
+  drawer = document.createElement('div');
+  drawer.id = 'selectedItemsDrawer';
+  drawer.className = 'selected-drawer';
+  drawer.innerHTML = `
+    <div class="selected-drawer-backdrop" onclick="closeSelectedItemsDrawer()"></div>
+    <section class="selected-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="selectedDrawerTitle">
+      <div class="selected-drawer-head">
+        <div><span class="micro-label">${uiLanguage === 'IT' ? 'RIEPILOGO' : 'CONFIGURATION'}</span><h2 id="selectedDrawerTitle">${uiLanguage === 'IT' ? 'Elementi selezionati' : 'Selected items'}</h2></div>
+        <button type="button" class="drawer-close" onclick="closeSelectedItemsDrawer()" aria-label="Close">&times;</button>
+      </div>
+      <div id="selectedDrawerList" class="selected-drawer-list"></div>
+      <div id="selectedDrawerFooter" class="selected-drawer-footer"></div>
+    </section>`;
+  document.body.appendChild(drawer);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeSelectedItemsDrawer(); });
+  return drawer;
+}
+
+function openSelectedItemsDrawer() {
+  const drawer = ensureSelectedItemsDrawer();
+  const picks = result.options.filter(option => option.selected);
+  document.querySelector('#selectedDrawerTitle').textContent = uiLanguage === 'IT' ? 'Elementi selezionati' : 'Selected items';
+  document.querySelector('#selectedDrawerList').innerHTML = picks.map((option, index) => `
+    <div class="drawer-item">
+      <span class="drawer-item-index">${String(index + 1).padStart(2, '0')}</span>
+      <img src="${option.image}" alt="">
+      <div><strong>${esc(option.name)}</strong><small>${esc(option.code)}</small></div>
+      <b>${euro(option.price)}</b>
+    </div>`).join('');
+  const p = result.pricing;
+  document.querySelector('#selectedDrawerFooter').innerHTML = `
+    <span>${uiLanguage === 'IT' ? 'Totale configurazione' : 'Configuration total'}</span>
+    <strong>${euro(p.netTotal)}</strong>`;
+  drawer.classList.add('visible');
+  document.body.classList.add('drawer-open');
+}
+
+function closeSelectedItemsDrawer() {
+  const drawer = document.querySelector('#selectedItemsDrawer');
+  if (drawer) drawer.classList.remove('visible');
+  document.body.classList.remove('drawer-open');
+}
 init();
