@@ -48,7 +48,7 @@ const I18N = {
 };
 
 const t = key => I18N[uiLanguage][key] || I18N.EN[key] || key;
-const euro = value => {
+let euro = value => {
   const n = Number(value || 0);
   const digits = Number.isInteger(n) ? 0 : 2;
   const amount = new Intl.NumberFormat('it-IT', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
