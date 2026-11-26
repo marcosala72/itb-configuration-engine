@@ -1,3 +1,24 @@
+
+const I18N = {
+  EN: {
+    subtitle:'API-first demonstrator, independent from the user interface.', configuration:'Configuration', reset:'Reset', firstName:'First name *', lastName:'Last name *', company:'Company', configurationName:'Configuration name *', boatDiscount:'Boat discount %', accessoriesDiscount:'Accessories discount %', saveOnline:'Save online', generatePdf:'Generate PDF', searchSaved:'Search saved', multiple:'Multiple selection', single:'Single selection', one:'Select one option', selected:'Selected', available:'Available', unavailable:'Not available', noSelection:'No option selected.', boat:'Boat', accessories:'Accessories', discounts:'Discounts', total:'Total', saved:'Configuration saved:', searchPrompt:'Search by last name, company, code or configuration name:', noneSaved:'No saved configuration found.', open:'Open', delete:'Delete', requiredFirst:'Enter the first name.', requiredLast:'Enter the last name.', requiredConfig:'Enter a configuration name.', deleteConfirm:'Delete', pdfFailed:'PDF generation failed', initializationFailed:'Unable to initialize the configurator:', engineNone:'Select an engine option to continue with compatible accessories.', enginePrefix:'Selected engine:', engineSuffix:'You can change it by selecting another one.', propulsionNone:'Select an engine first: compatible joysticks will be enabled automatically.', propulsionPrefix:'Available accessories are filtered according to', audioGuide:'The two audio systems are alternatives: selecting one disables the other.', electronicsGuide:'Raymarine and Garmin are alternative packages. You can select multiple items within the chosen package.', groups:{ENGINES:'Engine Options',PROPULSION:'Propulsion Package',HULL_DECK:'Hull and Deck Finishing',DECK:'Deck Equipment',COCKPIT:'Cockpit and Interior',ELECTRICAL:'Electric System',AUDIO:'Audio System',NAV_COMMON:'Navigation Equipment',RAYMARINE:'Raymarine Electronics Package',GARMIN:'Garmin Electronics Package',UPHOLSTERY:'Upholstery, Sunshades and Covers'}
+  },
+  IT: {
+    subtitle:'Dimostratore API-first, indipendente dall interfaccia utente.', configuration:'Configurazione', reset:'Azzera', firstName:'Nome *', lastName:'Cognome *', company:'Azienda', configurationName:'Nome configurazione *', boatDiscount:'Sconto imbarcazione %', accessoriesDiscount:'Sconto accessori %', saveOnline:'Salva online', generatePdf:'Genera PDF', searchSaved:'Cerca salvate', multiple:'Selezione multipla', single:'Selezione singola', one:'Seleziona una sola opzione', selected:'Selezionato', available:'Disponibile', unavailable:'Non disponibile', noSelection:'Nessuna opzione selezionata.', boat:'Imbarcazione', accessories:'Accessori', discounts:'Sconti', total:'Totale', saved:'Configurazione salvata:', searchPrompt:'Cerca per cognome, azienda, codice o nome configurazione:', noneSaved:'Nessuna configurazione trovata.', open:'Apri', delete:'Elimina', requiredFirst:'Inserisci il nome.', requiredLast:'Inserisci il cognome.', requiredConfig:'Inserisci un nome per la configurazione.', deleteConfirm:'Eliminare', pdfFailed:'Generazione PDF non riuscita', initializationFailed:'Impossibile inizializzare il configuratore:', engineNone:'Scegli una motorizzazione per proseguire con gli accessori compatibili.', enginePrefix:'Motorizzazione selezionata:', engineSuffix:'Puoi cambiarla scegliendone un altra.', propulsionNone:'Seleziona prima una motorizzazione: i joystick compatibili verranno abilitati automaticamente.', propulsionPrefix:'Gli accessori disponibili sono filtrati in base a', audioGuide:'I due sistemi audio sono alternativi: selezionandone uno, l altro viene disabilitato.', electronicsGuide:'Raymarine e Garmin sono pacchetti alternativi. Nel pacchetto scelto puoi selezionare piu componenti.', groups:{ENGINES:'Motorizzazione',PROPULSION:'Propulsione e manovra',HULL_DECK:'Scafo, coperta e finiture',DECK:'Accessori di coperta',COCKPIT:'Cockpit e interni',ELECTRICAL:'Sistemi elettrici',AUDIO:'Sistema audio',NAV_COMMON:'Navigazione comune',RAYMARINE:'Pacchetto Raymarine',GARMIN:'Pacchetto Garmin',UPHOLSTERY:'Tappezzeria, tendalini e coperture'}
+  }
+};
+let uiLanguage = localStorage.getItem('itb-ui-language') || 'EN';
+function tr(key){ return I18N[uiLanguage][key] || I18N.EN[key] || key; }
+function setLanguage(language){ uiLanguage=language; localStorage.setItem('itb-ui-language',language); applyStaticTranslations(); if(result) render(); }
+function setLabelForInput(id,text){const input=document.querySelector('#'+id);if(!input)return;const label=input.closest('label');if(label) label.childNodes[0].nodeValue=text;}
+function applyStaticTranslations(){
+ document.documentElement.lang=uiLanguage.toLowerCase();
+ const subtitle=document.querySelector('header p'); if(subtitle) subtitle.textContent=tr('subtitle');
+ const asideTitle=document.querySelector('aside h2'); if(asideTitle) asideTitle.textContent=tr('configuration');
+ document.querySelector('#reset').textContent=tr('reset'); document.querySelector('#saveServer').textContent=tr('saveOnline'); document.querySelector('#generatePdf').textContent=tr('generatePdf'); document.querySelector('#findSaved').textContent=tr('searchSaved');
+ setLabelForInput('firstName',tr('firstName')); setLabelForInput('lastName',tr('lastName')); setLabelForInput('company',tr('company')); setLabelForInput('configurationName',tr('configurationName')); setLabelForInput('boatDiscount',tr('boatDiscount')); setLabelForInput('accDiscount',tr('accessoriesDiscount'));
+ document.querySelector('#langEN').classList.toggle('active',uiLanguage==='EN'); document.querySelector('#langIT').classList.toggle('active',uiLanguage==='IT');
+}
 let catalog;
 let result;
 let activeGroup;
@@ -47,6 +68,9 @@ function showFatal(message) {
 }
 
 function wire() {
+  document.querySelector('#langEN').onclick = () => setLanguage('EN');
+  document.querySelector('#langIT').onclick = () => setLanguage('IT');
+  applyStaticTranslations();
   document.querySelector('#reset').onclick = resetConfiguration;
   document.querySelector('#boatDiscount').onchange = onDiscountChange;
   document.querySelector('#accDiscount').onchange = onDiscountChange;
@@ -142,7 +166,7 @@ function renderNavigation() {
   catalog.groups.forEach((group) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = group.label;
+    button.textContent = I18N[uiLanguage].groups[group.code] || group.label;
     button.className = group.code === activeGroup ? 'active' : '';
     button.onclick = () => {
       activeGroup = group.code;
@@ -154,7 +178,7 @@ function renderNavigation() {
 
 function renderGroup() {
   const group = catalog.groups.find((item) => item.code === activeGroup);
-  document.querySelector('#groupTitle').textContent = group.label;
+  document.querySelector('#groupTitle').textContent = I18N[uiLanguage].groups[group.code] || group.label;
   document.querySelector('#groupHint').textContent = group.max === 1
     ? (group.min === 1 ? 'Seleziona una sola opzione' : 'Selezione singola')
     : 'Selezione multipla';
@@ -175,7 +199,7 @@ function renderGroup() {
         <div class="body">
           <h3>${escapeHtml(option.name)}</h3>
           <div class="price">${euro(option.price)}</div>
-          <div class="status">${option.selected ? 'Selezionato' : option.available ? 'Disponibile' : escapeHtml(option.disabledReason || 'Non disponibile')}</div>
+          <div class="status">${option.selected ? tr('selected') : option.available ? tr('available') : escapeHtml(option.disabledReason || tr('unavailable'))}</div>
         </div>
       </article>`)
     .join('');
@@ -185,14 +209,14 @@ function renderSummary() {
   const picks = result.options.filter((option) => option.selected);
   document.querySelector('#selected').innerHTML = picks.length
     ? picks.map((option) => `<div class="pick"><span>${escapeHtml(option.name)}</span><b>${euro(option.price)}</b></div>`).join('')
-    : '<p>Nessuna opzione selezionata.</p>';
+    : '<p>${tr('noSelection')}</p>';
 
   const pricing = result.pricing;
   document.querySelector('#pricing').innerHTML = `
-    <div class="sub"><span>Imbarcazione</span><b>${euro(pricing.boatSubtotal)}</b></div>
-    <div class="sub"><span>Accessori</span><b>${euro(pricing.accessoriesSubtotal)}</b></div>
-    <div class="sub"><span>Sconti</span><b>-${euro(pricing.discountTotal)}</b></div>
-    <div class="total"><span>Totale</span><span>${euro(pricing.netTotal)}</span></div>`;
+    <div class="sub"><span>${tr('boat')}</span><b>${euro(pricing.boatSubtotal)}</b></div>
+    <div class="sub"><span>${tr('accessories')}</span><b>${euro(pricing.accessoriesSubtotal)}</b></div>
+    <div class="sub"><span>${tr('discounts')}</span><b>-${euro(pricing.discountTotal)}</b></div>
+    <div class="total"><span>${tr('total')}</span><span>${euro(pricing.netTotal)}</span></div>`;
 }
 
 function requiredFields() {

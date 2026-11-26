@@ -1,12 +1,109 @@
 [
-  {"id":"ENGINE_ONE","type":"EXACTLY_ONE","scopeGroup":"ENGINES","members":["ENGINE_F300","ENGINE_V350","ENGINE_V400","ENGINE_R500"],"message":"Seleziona una sola motorizzazione."},
-  {"id":"JOYSTICK_ONE","type":"AT_MOST_ONE","scopeGroup":"PROPULSION","members":["JOYSTICK_300","JOYSTICK_350_400","JOYSTICK_500"],"message":"I joystick di manovra sono alternativi."},
-  {"id":"JOYSTICK_300_COMPAT","type":"AVAILABLE_IF","scopeGroup":"PROPULSION","member":"JOYSTICK_300","selectedAny":["ENGINE_F300"],"message":"Disponibile solo con Mercury F300."},
-  {"id":"JOYSTICK_350_400_COMPAT","type":"AVAILABLE_IF","scopeGroup":"PROPULSION","member":"JOYSTICK_350_400","selectedAny":["ENGINE_V350","ENGINE_V400"],"message":"Disponibile solo con Mercury V350 o V400."},
-  {"id":"JOYSTICK_500_COMPAT","type":"AVAILABLE_IF","scopeGroup":"PROPULSION","member":"JOYSTICK_500","selectedAny":["ENGINE_R500"],"message":"Disponibile solo con Mercury Racing 500."},
-  {"id":"ENGINE_COVER_ONE","type":"AT_MOST_ONE","scopeGroup":"HULL_DECK","members":["REMOVE_DECALS","PAINT_ENGINE_COVERS"],"message":"Le due finiture delle coperture motore sono alternative."},
-  {"id":"BOW_CONFIGURATION_ONE","type":"AT_MOST_ONE","scopeGroup":"DECK","members":["BOW_TABLE_SUNBED","BOW_FIXED_SUNBED"],"message":"Le configurazioni di prua sono alternative."},
-  {"id":"UNDERWATER_LIGHTS_ONE","type":"AT_MOST_ONE","scopeGroup":"ELECTRICAL","members":["UNDERWATER_LIGHTS_2","UNDERWATER_LIGHTS_4"],"message":"Scegli un solo set di luci subacquee."},
-  {"id":"AUDIO_ONE","type":"AT_MOST_ONE","scopeGroup":"AUDIO","members":["AUDIO_STANDARD","AUDIO_PREMIUM"],"message":"I sistemi audio sono alternativi."},
-  {"id":"ELECTRONICS_BRAND","type":"MUTUALLY_EXCLUSIVE_GROUPS","scopeGroups":["RAYMARINE","GARMIN"],"groups":["RAYMARINE","GARMIN"],"message":"Gli accessori Raymarine e Garmin non possono essere combinati."}
+    {
+        "id":  "ENGINE_ONE",
+        "type":  "EXACTLY_ONE",
+        "scopeGroup":  "ENGINES",
+        "members":  [
+                        "ENGINE_F300",
+                        "ENGINE_V350",
+                        "ENGINE_V400",
+                        "ENGINE_R500"
+                    ],
+        "message":  "Select one engine option."
+    },
+    {
+        "id":  "JOYSTICK_ONE",
+        "type":  "AT_MOST_ONE",
+        "scopeGroup":  "PROPULSION",
+        "members":  [
+                        "JOYSTICK_300",
+                        "JOYSTICK_350_400",
+                        "JOYSTICK_500"
+                    ],
+        "message":  "The maneuvering joysticks are alternative accessories."
+    },
+    {
+        "id":  "JOYSTICK_300_COMPAT",
+        "type":  "AVAILABLE_IF",
+        "scopeGroup":  "PROPULSION",
+        "member":  "JOYSTICK_300",
+        "selectedAny":  [
+                            "ENGINE_F300"
+                        ],
+        "message":  "Available only with Mercury F300."
+    },
+    {
+        "id":  "JOYSTICK_350_400_COMPAT",
+        "type":  "AVAILABLE_IF",
+        "scopeGroup":  "PROPULSION",
+        "member":  "JOYSTICK_350_400",
+        "selectedAny":  [
+                            "ENGINE_V350",
+                            "ENGINE_V400"
+                        ],
+        "message":  "Available only with Mercury V350 or V400."
+    },
+    {
+        "id":  "JOYSTICK_500_COMPAT",
+        "type":  "AVAILABLE_IF",
+        "scopeGroup":  "PROPULSION",
+        "member":  "JOYSTICK_500",
+        "selectedAny":  [
+                            "ENGINE_R500"
+                        ],
+        "message":  "Available only with Mercury Racing 500."
+    },
+    {
+        "id":  "ENGINE_COVER_ONE",
+        "type":  "AT_MOST_ONE",
+        "scopeGroup":  "HULL_DECK",
+        "members":  [
+                        "REMOVE_DECALS",
+                        "PAINT_ENGINE_COVERS"
+                    ],
+        "message":  "The two engine cover finishes are alternative accessories."
+    },
+    {
+        "id":  "BOW_CONFIGURATION_ONE",
+        "type":  "AT_MOST_ONE",
+        "scopeGroup":  "DECK",
+        "members":  [
+                        "BOW_TABLE_SUNBED",
+                        "BOW_FIXED_SUNBED"
+                    ],
+        "message":  "The bow configurations are alternative accessories."
+    },
+    {
+        "id":  "UNDERWATER_LIGHTS_ONE",
+        "type":  "AT_MOST_ONE",
+        "scopeGroup":  "ELECTRICAL",
+        "members":  [
+                        "UNDERWATER_LIGHTS_2",
+                        "UNDERWATER_LIGHTS_4"
+                    ],
+        "message":  "Select one underwater light set."
+    },
+    {
+        "id":  "AUDIO_ONE",
+        "type":  "AT_MOST_ONE",
+        "scopeGroup":  "AUDIO",
+        "members":  [
+                        "AUDIO_STANDARD",
+                        "AUDIO_PREMIUM"
+                    ],
+        "message":  "The two audio systems are alternative accessories."
+    },
+    {
+        "id":  "ELECTRONICS_BRAND",
+        "type":  "MUTUALLY_EXCLUSIVE_GROUPS",
+        "scopeGroups":  [
+                            "RAYMARINE",
+                            "GARMIN"
+                        ],
+        "groups":  [
+                       "RAYMARINE",
+                       "GARMIN"
+                   ],
+        "message":  "Raymarine and Garmin electronics cannot be combined."
+    }
 ]

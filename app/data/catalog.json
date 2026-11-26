@@ -9,77 +9,77 @@
     "groups":  [
                    {
                        "code":  "ENGINES",
-                       "label":  "Motorizzazione",
+                       "label":  "Engine Options",
                        "min":  1,
                        "max":  1,
                        "image":  "/static/assets/engines.png"
                    },
                    {
                        "code":  "PROPULSION",
-                       "label":  "Propulsione e manovra",
+                       "label":  "Propulsion Package",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/joystick.png"
                    },
                    {
                        "code":  "HULL_DECK",
-                       "label":  "Scafo, coperta e finiture",
+                       "label":  "Hull and Deck Finishing",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/deck.png"
                    },
                    {
                        "code":  "DECK",
-                       "label":  "Accessori di coperta",
+                       "label":  "Deck Equipment",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/deck.png"
                    },
                    {
                        "code":  "COCKPIT",
-                       "label":  "Cockpit e interni",
+                       "label":  "Cockpit and Interior",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/deck.png"
                    },
                    {
                        "code":  "ELECTRICAL",
-                       "label":  "Sistemi elettrici",
+                       "label":  "Electric System",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/electronics.png"
                    },
                    {
                        "code":  "AUDIO",
-                       "label":  "Sistema audio",
+                       "label":  "Audio System",
                        "min":  0,
                        "max":  1,
                        "image":  "/static/assets/audio.png"
                    },
                    {
                        "code":  "NAV_COMMON",
-                       "label":  "Navigazione comune",
+                       "label":  "Navigation Equipment",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/electronics.png"
                    },
                    {
                        "code":  "RAYMARINE",
-                       "label":  "Pacchetto Raymarine",
+                       "label":  "Raymarine Electronics Package",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/electronics.png"
                    },
                    {
                        "code":  "GARMIN",
-                       "label":  "Pacchetto Garmin",
+                       "label":  "Garmin Electronics Package",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/electronics.png"
                    },
                    {
                        "code":  "UPHOLSTERY",
-                       "label":  "Tappezzeria, tendalini e coperture",
+                       "label":  "Upholstery, Sunshades and Covers",
                        "min":  0,
                        "max":  null,
                        "image":  "/static/assets/deck.png"
