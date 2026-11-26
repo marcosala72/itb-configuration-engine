@@ -1,4 +1,85 @@
-<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ITB Configuration Engine - Novamarine</title><link rel="stylesheet" href="/static/style.css?v=20261126193754"></head><body><header><div><div class="topline"><span class="eyebrow">ITB CONFIGURATION ENGINE - POC</span><div class="language-switch" role="group" aria-label="Language"><button id="langEN" type="button" class="active">EN</button><button id="langIT" type="button">IT</button></div></div><h1>Black Shiver 120 Outboard</h1><p>API-first demonstrator, independent from the user interface.</p></div><img src="/static/assets/boat.png" alt="Imbarcazione dimostrativa"></header><div class="layout"><nav id="nav"></nav><main><div class="toolbar"><div><b id="groupTitle">Configuration</b><span id="groupHint"></span></div><button id="reset">Reset</button></div><div id="errors"></div><div id="cards" class="cards"></div></main><aside><h2>Configuration</h2><div class="customer"><label>First name *<input id="firstName" maxlength="80"></label><label>Last name *<input id="lastName" maxlength="80"></label><label>Company<input id="company" maxlength="120"></label><label>Configuration name *<input id="configurationName" maxlength="120" placeholder="E.g. BS 120 demo customer"></label></div><div id="selected"></div><div class="discount"><label>Boat discount %<input id="boatDiscount" type="number" min="0" max="100" value="0"></label><label>Accessories discount %<input id="accDiscount" type="number" min="0" max="100" value="0"></label></div><div id="pricing"></div><div class="actions"><button id="saveServer">Save online</button><button id="generatePdf">Generate PDF</button><button id="findSaved">Search saved</button></div><div id="savedPanel" class="saved-panel"></div><small>Illustrative assets generated for the demo. Visual in this file was generated with Microsoft Copilot.</small></aside></div><script src="/static/app.js?v=20261126193754"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Novamarine BS 120 Configurator</title>
+  <link rel="stylesheet" href="/static/style.css?v=202611262100">
+</head>
+<body>
+  <section id="welcome" class="welcome" aria-label="Welcome">
+    <img class="welcome-photo" src="/static/brand/hero.jpg" alt="Novamarine BS 120">
+    <div class="welcome-panel">
+      <div class="welcome-top">
+        <img src="/static/brand/logo-light.png" alt="Novamarine" class="brand-logo-light">
+        <div class="language-switch landing-language" role="group" aria-label="Language"><button class="active" type="button" data-welcome-lang="EN">EN</button><button type="button" data-welcome-lang="IT">IT</button></div>
+      </div>
+      <div class="welcome-copy">
+        <span class="kicker">PERSONAL CONFIGURATION</span>
+        <h1>BLACK SHIVER<br><strong>120</strong></h1>
+        <div class="outboard">OUTBOARD</div>
+        <div class="mini-tricolore"><i></i><i></i><i></i></div>
+        <p id="welcomeText">Build a configuration tailored to your vision.</p>
+        <div class="welcome-actions">
+          <button id="startConfiguration" class="button-primary" type="button">START CONFIGURATION</button>
+          <button id="openSavedWelcome" class="button-secondary" type="button">OPEN SAVED</button>
+        </div>
+      </div>
+      <div class="welcome-foot">ITB CONFIGURATION ENGINE · DEMONSTRATION</div>
+    </div>
+  </section>
 
+  <div id="appShell" class="app-shell app-hidden">
+    <header class="topbar">
+      <button id="homeButton" class="brand-button" type="button" aria-label="Home"><img src="/static/brand/logo-dark.png" alt="Novamarine"></button>
+      <div class="model-mark"><span>BLACK SHIVER</span><strong>120</strong><small>OUTBOARD</small></div>
+      <div class="topbar-tools">
+        <span class="engine-label">ITB CONFIGURATION ENGINE</span>
+        <div class="language-switch" role="group" aria-label="Language"><button id="langEN" type="button" class="active">EN</button><button id="langIT" type="button">IT</button></div>
+      </div>
+    </header>
 
+    <div class="workspace">
+      <aside class="progress-column">
+        <div class="progress-heading"><span>PERSONAL CONFIGURATION</span><strong id="progressText">01 / 11</strong></div>
+        <nav id="nav"></nav>
+        <div class="progress-image"><img src="/static/brand/deck.jpg" alt="Novamarine deck detail"></div>
+      </aside>
 
+      <main class="catalog-column">
+        <div class="section-top">
+          <div><span class="chapter-no" id="chapterNo">01</span><h2 id="groupTitle">Engine Options</h2><span id="groupHint"></span></div>
+          <button id="reset" class="text-action" type="button">Reset</button>
+        </div>
+        <div id="errors"></div>
+        <div id="cards" class="cards"></div>
+      </main>
+
+      <aside class="summary-column">
+        <div class="summary-hero"><img src="/static/brand/summary.jpg" alt="Novamarine on the sea"><div><span>YOUR</span><strong>CONFIGURATION</strong></div></div>
+        <div class="customer">
+          <label>First name *<input id="firstName" maxlength="80"></label>
+          <label>Last name *<input id="lastName" maxlength="80"></label>
+          <label>Company<input id="company" maxlength="120"></label>
+          <label>Configuration name *<input id="configurationName" maxlength="120" placeholder="E.g. BS 120 demo customer"></label>
+        </div>
+        <div id="selected" class="selected-list"></div>
+        <div class="discount">
+          <label>Boat discount %<input id="boatDiscount" type="number" min="0" max="100" value="0"></label>
+          <label>Accessories discount %<input id="accDiscount" type="number" min="0" max="100" value="0"></label>
+        </div>
+        <div id="pricing" class="pricing"></div>
+        <div class="actions">
+          <button id="saveServer" type="button">Save online</button>
+          <button id="generatePdf" class="action-primary" type="button">Generate PDF</button>
+          <button id="findSaved" type="button">Search saved</button>
+        </div>
+        <div id="savedPanel" class="saved-panel"></div>
+        <small class="demo-note">Illustrative assets generated for the demo. Visual in this file was generated with Microsoft Copilot.</small>
+      </aside>
+    </div>
+  </div>
+  <script src="/static/app.js?v=202611262100"></script>
+  <script src="/static/luxury.js?v=202611262100"></script>
+</body>
+</html>
