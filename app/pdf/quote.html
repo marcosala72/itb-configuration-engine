@@ -75,7 +75,7 @@ h3 { font-size:12pt; text-transform:uppercase; margin:8mm 0 3mm; border-left:3px
 
   {% for section in sections %}
     <h3>{{ section.label }}</h3>
-    {% for item in section.items %}
+    {% for item in section['items'] %}
     <div class="item">
       <img src="{{ asset_root }}{{ item.image|replace('/static','') }}" alt="">
       <div><div class="name">{{ item.name }}</div><small>{{ item.code }}</small></div>
