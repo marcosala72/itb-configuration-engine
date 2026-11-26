@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+from fastapi import HTTPException, Query
+from app.storage import GitHubJsonRepository, StorageError
 ROOT=Path(__file__).parent
 CAT=json.loads((ROOT/'data/catalog.json').read_text(encoding='utf-8')); RULES=json.loads((ROOT/'data/rules.json').read_text(encoding='utf-8'))
 OPTIONS={o['code']:o for o in CAT['options']}
@@ -47,3 +49,64 @@ def evaluate(req:EvaluateRequest):
  states=[{**o,'selected':c in ss,'available':c not in disabled,'disabledReason':disabled.get(c)} for c,o in OPTIONS.items()]
  return {'valid':not violations,'modelCode':req.modelCode,'catalogVersion':CAT['model']['catalogVersion'],'selectedOptions':selected,'options':states,'violations':violations,'appliedRules':applied,'pricing':{'boatSubtotal':boat,'accessoriesSubtotal':accessories+fixed,'discountTotal':bd+ad,'netTotal':total,'currency':'EUR'}}
 
+
+class CustomerData(BaseModel):
+    firstName: str = Field(min_length=1, max_length=80)
+    lastName: str = Field(min_length=1, max_length=80)
+    company: str = Field(default="", max_length=120)
+
+class SavedConfigurationRequest(BaseModel):
+    configurationName: str = Field(min_length=1, max_length=120)
+    customer: CustomerData
+    modelCode: str = "BS120OB"
+    catalogVersion: str = "POC-2"
+    selectedOptions: list[str] = []
+    discounts: Discounts = Discounts()
+    pricingSnapshot: dict = {}
+
+
+def configuration_repository():
+    try:
+        return GitHubJsonRepository()
+    except StorageError as exc:
+        raise HTTPException(status_code=503, detail=str(exc))
+
+@app.post('/api/v1/saved-configurations')
+def create_saved_configuration(request: SavedConfigurationRequest):
+    try:
+        return configuration_repository().save(request.model_dump())
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+@app.get('/api/v1/saved-configurations')
+def list_saved_configurations(query: str = Query(default='', max_length=120)):
+    try:
+        return {'items': configuration_repository().list(query)}
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+@app.get('/api/v1/saved-configurations/{code}')
+def get_saved_configuration(code: str):
+    try:
+        return configuration_repository().get(code)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail='Configurazione non trovata')
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+@app.put('/api/v1/saved-configurations/{code}')
+def update_saved_configuration(code: str, request: SavedConfigurationRequest):
+    try:
+        return configuration_repository().save(request.model_dump(), code)
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))
+
+@app.delete('/api/v1/saved-configurations/{code}')
+def delete_saved_configuration(code: str):
+    try:
+        configuration_repository().delete(code)
+        return {'deleted': True, 'configurationCode': code}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail='Configurazione non trovata')
+    except StorageError as exc:
+        raise HTTPException(status_code=502, detail=str(exc))

@@ -1,4 +1,4 @@
-let catalog, result, activeGroup, selected = [], discounts = { boatPct: 0, accessoriesPct: 0 };
+﻿let catalog, result, activeGroup, selected = [], discounts = { boatPct: 0, accessoriesPct: 0 };
 
 const euro = n => new Intl.NumberFormat('it-IT', {
   style: 'currency',
@@ -26,6 +26,8 @@ async function init() {
 }
 
 function wire() {
+  document.querySelector('#saveServer').onclick = saveOnline;
+  document.querySelector('#findSaved').onclick = findSaved;
   document.querySelector('#reset').onclick = () => {
     selected = [];
     discounts = { boatPct: 0, accessoriesPct: 0 };
@@ -118,11 +120,11 @@ function sectionGuidance() {
   }
 
   if (activeGroup === 'AUDIO') {
-    return 'I due sistemi audio sono alternativi: selezionandone uno, l’altro viene disabilitato.';
+    return 'I due sistemi audio sono alternativi: selezionandone uno, lâ€™altro viene disabilitato.';
   }
 
   if (activeGroup === 'RAYMARINE' || activeGroup === 'GARMIN') {
-    return 'Raymarine e Garmin sono pacchetti alternativi. All’interno del pacchetto scelto puoi selezionare più componenti.';
+    return 'Raymarine e Garmin sono pacchetti alternativi. Allâ€™interno del pacchetto scelto puoi selezionare piÃ¹ componenti.';
   }
 
   return '';
@@ -182,4 +184,68 @@ function render() {
     <div class="total"><span>Totale</span><span>${euro(p.netTotal)}</span></div>`;
 }
 
+
+let currentSavedCode = null;
+
+function savedPayload() {
+  const firstName = document.querySelector('#firstName').value.trim();
+  const lastName = document.querySelector('#lastName').value.trim();
+  const configurationName = document.querySelector('#configurationName').value.trim();
+  if (!firstName || !lastName || !configurationName) throw new Error('Compila nome, cognome e nome configurazione.');
+  return {
+    configurationName,
+    customer: { firstName, lastName, company: document.querySelector('#company').value.trim() },
+    modelCode: 'BS120OB',
+    catalogVersion: catalog.model.catalogVersion,
+    selectedOptions: selected,
+    discounts,
+    pricingSnapshot: result.pricing
+  };
+}
+
+async function saveOnline() {
+  try {
+    const payload = savedPayload();
+    const url = currentSavedCode ? `/api/v1/saved-configurations/${currentSavedCode}` : '/api/v1/saved-configurations';
+    const response = await fetch(url, { method: currentSavedCode ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error((await response.json()).detail || 'Salvataggio non riuscito');
+    const saved = await response.json();
+    currentSavedCode = saved.configurationCode;
+    alert(`Configurazione salvata: ${currentSavedCode}`);
+    await findSaved();
+  } catch (error) { alert(error.message); }
+}
+
+async function findSaved() {
+  const query = prompt('Cerca per cognome, azienda, codice o nome configurazione:', '') ?? '';
+  const response = await fetch(`/api/v1/saved-configurations?query=${encodeURIComponent(query)}`);
+  if (!response.ok) { alert('Ricerca non disponibile'); return; }
+  const data = await response.json();
+  document.querySelector('#savedPanel').innerHTML = data.items.length ? data.items.map(item => `<div class="saved-item"><b>${item.configurationCode} - ${item.configurationName}</b>${item.customer.firstName} ${item.customer.lastName}${item.customer.company ? ' Â· '+item.customer.company : ''}<div>${euro(item.pricingSnapshot?.netTotal || 0)} Â· ${new Date(item.updatedAt).toLocaleString('it-IT')}</div><div class="saved-actions"><button onclick="openSaved('${item.configurationCode}')">Apri</button><button onclick="deleteSaved('${item.configurationCode}')">Elimina</button></div></div>`).join('') : '<p>Nessuna configurazione trovata.</p>';
+}
+
+async function openSaved(code) {
+  const response = await fetch(`/api/v1/saved-configurations/${code}`);
+  if (!response.ok) { alert('Configurazione non trovata'); return; }
+  const item = await response.json();
+  currentSavedCode = item.configurationCode;
+  selected = item.selectedOptions || [];
+  discounts = item.discounts || {boatPct:0, accessoriesPct:0};
+  document.querySelector('#firstName').value = item.customer.firstName || '';
+  document.querySelector('#lastName').value = item.customer.lastName || '';
+  document.querySelector('#company').value = item.customer.company || '';
+  document.querySelector('#configurationName').value = item.configurationName || '';
+  document.querySelector('#boatDiscount').value = discounts.boatPct;
+  document.querySelector('#accDiscount').value = discounts.accessoriesPct;
+  await evaluate();
+}
+
+async function deleteSaved(code) {
+  if (!confirm(`Eliminare ${code}?`)) return;
+  const response = await fetch(`/api/v1/saved-configurations/${code}`, {method:'DELETE'});
+  if (!response.ok) { alert('Eliminazione non riuscita'); return; }
+  if (currentSavedCode === code) currentSavedCode = null;
+  await findSaved();
+}
 init();
+
