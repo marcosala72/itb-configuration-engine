@@ -208,3 +208,96 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
 @media (min-width:901px) and (max-height:800px){.catalog-column{padding-top:22px}.section-top{padding-bottom:14px;margin-bottom:12px}.card img{height:145px}.card .body{padding:12px 14px}.action-feedback{font-size:9px;padding:7px 8px;margin-top:5px}}
 @media (min-width:1500px){.workspace{grid-template-columns:250px minmax(620px,1fr) 355px}.card img{height:200px}}
 /* ITB_CLIENT_DEMO_POLISH_CSS_END */
+/* ITB_HEADER_LAYOUT_CSS_ONLY_START */
+/* Safe override: no JavaScript and no HTML structure changes. */
+.section-top {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  align-items: start !important;
+  column-gap: 24px !important;
+}
+.section-top > div:first-child {
+  display: grid !important;
+  grid-template-columns: max-content minmax(0, max-content) max-content !important;
+  grid-template-areas:
+    "chapter title badge"
+    ". hint hint" !important;
+  align-items: center !important;
+  column-gap: 12px !important;
+  row-gap: 9px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+.section-top .chapter-no {
+  grid-area: chapter !important;
+  align-self: center !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+.section-top #groupTitle {
+  grid-area: title !important;
+  display: block !important;
+  margin: 4px 0 0 !important;
+  min-width: 0 !important;
+  white-space: normal !important;
+}
+.section-top #groupModeBadge {
+  grid-area: badge !important;
+  align-self: center !important;
+  justify-self: start !important;
+  vertical-align: initial !important;
+  margin: 4px 0 0 !important;
+  font-size: 0 !important;
+}
+.section-top #groupModeBadge.visible::before {
+  content: "REQUIRED \00B7 SELECT ONE";
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+html[lang="it"] .section-top #groupModeBadge.visible::before,
+body.lang-it .section-top #groupModeBadge.visible::before {
+  content: "OBBLIGATORIO \00B7 SCEGLI UNO";
+}
+.section-top #groupHint {
+  grid-area: hint !important;
+  display: block !important;
+  margin: 0 !important;
+  max-width: 760px !important;
+  line-height: 1.4 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.section-top #reset {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  justify-self: end !important;
+  align-self: start !important;
+  white-space: nowrap !important;
+  margin-top: 5px !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+@media (min-width: 1160px) and (max-width: 1450px) {
+  .section-top { column-gap: 16px !important; }
+  .section-top > div:first-child {
+    grid-template-columns: max-content minmax(0, max-content) max-content !important;
+    column-gap: 9px !important;
+  }
+  .section-top #groupModeBadge.visible::before {
+    font-size: 7px;
+    letter-spacing: .8px;
+  }
+}
+@media (max-width: 1050px) {
+  .section-top > div:first-child {
+    grid-template-columns: max-content minmax(0, 1fr) !important;
+    grid-template-areas:
+      "chapter title"
+      ". badge"
+      ". hint" !important;
+  }
+  .section-top #groupModeBadge { margin-top: 2px !important; }
+}
+/* ITB_HEADER_LAYOUT_CSS_ONLY_END */
