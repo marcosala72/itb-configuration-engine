@@ -112,3 +112,93 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
 @media(max-height:760px) and (min-width:901px){.summary-hero{height:70px!important}.customer input{padding:4px 6px!important}.pick{padding:3px 0!important}.actions button{padding:6px 4px!important}.demo-note{display:none!important}}
 @media(max-width:900px){.summary-column{position:static!important;height:auto!important;max-height:none!important;overflow:visible!important;display:block!important}.saved-panel{overflow:visible!important}.saved-panel .saved-item:nth-of-type(n+2){display:block!important}}
 /* ITB_SUMMARY_DRAWER_V2_CSS_END */
+/* ITB_READABILITY_CONTROLS_START */
+:root {
+  --itb-left-nav-font-size: 13px;
+  --itb-left-nav-active-font-size: 13.5px;
+  --itb-left-number-font-size: 9px;
+  --itb-left-heading-font-size: 9px;
+  --itb-summary-label-font-size: 9.5px;
+  --itb-summary-body-font-size: 11px;
+  --itb-summary-action-font-size: 9.5px;
+  --itb-summary-saved-font-size: 10px;
+}
+
+/* Left menu: larger text and enough width for long EN/IT labels. */
+.workspace {
+  grid-template-columns: 250px minmax(500px, 1fr) 355px;
+}
+.progress-heading {
+  font-size: var(--itb-left-heading-font-size);
+}
+.progress-column nav button {
+  padding: 11px 12px;
+  font-size: var(--itb-left-nav-font-size);
+  line-height: 1.25;
+}
+.progress-column nav button::before {
+  font-size: var(--itb-left-number-font-size);
+}
+.progress-column nav button.active {
+  font-size: var(--itb-left-nav-active-font-size);
+  font-weight: 600;
+}
+
+/* Right summary: readable while retaining the compact sticky layout. */
+.summary-column .customer label,
+.summary-column .discount label {
+  font-size: var(--itb-summary-label-font-size) !important;
+}
+.summary-column .customer input,
+.summary-column .discount input {
+  font-size: var(--itb-summary-body-font-size);
+}
+.summary-column .selected-list .pick,
+.summary-column .sub {
+  font-size: var(--itb-summary-body-font-size) !important;
+  line-height: 1.22 !important;
+}
+.summary-column .selected-more-button {
+  font-size: 9px;
+}
+.summary-column .actions button {
+  font-size: var(--itb-summary-action-font-size) !important;
+}
+.summary-column .saved-panel .saved-item {
+  font-size: var(--itb-summary-saved-font-size) !important;
+  line-height: 1.25;
+}
+.summary-column .saved-actions button {
+  font-size: 9px;
+}
+
+/* Preserve space on medium laptops without returning to the former 190 px rail. */
+@media (max-width: 1150px) and (min-width: 901px) {
+  .workspace {
+    grid-template-columns: 220px minmax(420px, 1fr) 330px;
+  }
+  .progress-column nav button {
+    font-size: 12.5px;
+    padding-left: 10px;
+    padding-right: 8px;
+  }
+  .progress-column nav button.active {
+    font-size: 13px;
+  }
+  .summary-column .customer label,
+  .summary-column .discount label {
+    font-size: 9px !important;
+  }
+  .summary-column .selected-list .pick,
+  .summary-column .sub {
+    font-size: 10.5px !important;
+  }
+}
+
+/* Existing mobile horizontal navigation remains unchanged in structure. */
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+/* ITB_READABILITY_CONTROLS_END */
