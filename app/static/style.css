@@ -202,3 +202,9 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
   }
 }
 /* ITB_READABILITY_CONTROLS_END */
+/* ITB_CLIENT_DEMO_POLISH_CSS_START */
+#groupTitle{display:inline-block;margin-right:12px}.group-mode-badge{display:none;vertical-align:6px;background:#111315;color:#fff;border:1px solid #111315;padding:6px 8px;font-size:8px;font-weight:700;letter-spacing:1.1px;line-height:1;white-space:nowrap}.group-mode-badge.visible{display:inline-block}.card .status{font-weight:600;letter-spacing:.5px;text-transform:uppercase}.action-feedback{display:none;margin-top:8px;padding:9px 10px;border-left:3px solid #777;background:#ece8df;font-size:10px;line-height:1.35}.action-feedback.visible{display:block}.action-feedback.success{border-left-color:#3e8237;background:#e8f3e5;color:#285d23}.action-feedback.error{border-left-color:var(--danger);background:#f9e9e7;color:var(--danger)}.actions button[aria-busy="true"]{cursor:wait}
+@media (min-width:1160px) and (max-width:1450px){.workspace{grid-template-columns:230px minmax(470px,1fr) 350px}.catalog-column{padding-left:24px;padding-right:24px}.cards{gap:14px}.card img{height:165px}.section-top h2{font-size:35px}.group-mode-badge{font-size:7px}}
+@media (min-width:901px) and (max-height:800px){.catalog-column{padding-top:22px}.section-top{padding-bottom:14px;margin-bottom:12px}.card img{height:145px}.card .body{padding:12px 14px}.action-feedback{font-size:9px;padding:7px 8px;margin-top:5px}}
+@media (min-width:1500px){.workspace{grid-template-columns:250px minmax(620px,1fr) 355px}.card img{height:200px}}
+/* ITB_CLIENT_DEMO_POLISH_CSS_END */

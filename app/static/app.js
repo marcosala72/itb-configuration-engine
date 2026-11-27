@@ -394,4 +394,74 @@ function closeSelectedItemsDrawerV2() {
   document.body.classList.remove('drawer-open-v2');
 }
 /* ITB_SUMMARY_DRAWER_V2_END */
+/* ITB_CLIENT_DEMO_POLISH_START */
+Object.assign(I18N.EN, {
+  engineSuffix: 'Select another engine to replace the current one.',
+  engineBadge: 'REQUIRED Â· SELECT ONE', currentEngine: 'CURRENT ENGINE', replaceEngine: 'SELECT TO REPLACE',
+  saveBusy: 'Saving...', saveSuccess: 'Configuration saved successfully:', saveFailed: 'Unable to save the configuration.',
+  pdfBusy: 'Generating PDF...', pdfSuccess: 'PDF generated successfully.'
+});
+Object.assign(I18N.IT, {
+  engineSuffix: 'Seleziona un altro motore per sostituire quello attuale.',
+  engineBadge: 'OBBLIGATORIO Â· SCEGLI UNO', currentEngine: 'MOTORE ATTUALE', replaceEngine: 'SELEZIONA PER SOSTITUIRE',
+  saveBusy: 'Salvataggio...', saveSuccess: 'Configurazione salvata correttamente:', saveFailed: 'Impossibile salvare la configurazione.',
+  pdfBusy: 'Generazione PDF...', pdfSuccess: 'PDF generato correttamente.'
+});
+
+function ensureActionFeedback(){
+  let area=document.querySelector('#actionFeedback');
+  if(area)return area;
+  area=document.createElement('div');
+  area.id='actionFeedback';area.className='action-feedback';area.setAttribute('role','status');area.setAttribute('aria-live','polite');
+  const actions=document.querySelector('.actions');
+  actions.insertAdjacentElement('afterend',area);
+  return area;
+}
+function showActionFeedback(type,message){const area=ensureActionFeedback();area.className=`action-feedback visible ${type}`;area.textContent=message;}
+function clearActionFeedback(){const area=ensureActionFeedback();area.className='action-feedback';area.textContent='';}
+function requiredFormComplete(){return document.querySelector('#firstName').value.trim()&&document.querySelector('#lastName').value.trim()&&document.querySelector('#configurationName').value.trim();}
+function setSaveBusy(busy){const button=document.querySelector('#saveServer');button.setAttribute('aria-busy',String(busy));button.disabled=busy||!requiredFormComplete();button.innerHTML=busy?'<span class="button-spinner"></span>'+t('saveBusy'):t('saveOnline');}
+
+const baseRenderGroup=renderGroup;
+renderGroup=function(){
+  baseRenderGroup();
+  const group=catalog.groups.find(x=>x.code===activeGroup);
+  let badge=document.querySelector('#groupModeBadge');
+  if(!badge){badge=document.createElement('span');badge.id='groupModeBadge';badge.className='group-mode-badge';document.querySelector('#groupTitle').insertAdjacentElement('afterend',badge);}
+  badge.textContent=group.code==='ENGINES'?t('engineBadge'):'';
+  badge.classList.toggle('visible',group.code==='ENGINES');
+  if(group.code==='ENGINES'){
+    document.querySelector('#groupHint').textContent=uiLanguage==='IT'?'Seleziona un altro motore per sostituire quello attuale.':'Select another engine to replace the current one.';
+    result.options.filter(o=>o.group==='ENGINES').forEach(o=>{
+      const card=document.querySelector(`.card[onclick="toggle('${o.code}')"]`);
+      if(card){const status=card.querySelector('.status');if(status)status.textContent=o.selected?t('currentEngine'):t('replaceEngine');card.classList.remove('disabled');}
+    });
+  }
+};
+
+saveOnline=async function(){
+  try{
+    clearActionFeedback();const body=payload();setSaveBusy(true);
+    const url=currentSavedCode?`/api/v1/saved-configurations/${encodeURIComponent(currentSavedCode)}`:'/api/v1/saved-configurations';
+    const saved=await api(url,{method:currentSavedCode?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    currentSavedCode=saved.configurationCode;showActionFeedback('success',`${t('saveSuccess')} ${currentSavedCode}`);await findSaved(false);
+  }catch(e){if(e.message!=='VALIDATION_FIELDS')showActionFeedback('error',`${t('saveFailed')} ${e.message}`);}
+  finally{setSaveBusy(false);}
+};
+
+generatePdf=async function(){
+  try{
+    clearActionFeedback();const body=payload();setPdfBusy(true);
+    const response=await fetch('/api/v1/documents/quote.pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!response.ok){let message=t('pdfFailed');try{message=(await response.json()).detail||message;}catch(_){}throw new Error(message);}
+    const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement('a');
+    a.href=url;a.download=(body.configurationName||'configuration').replace(/[^a-zA-Z0-9_-]+/g,'_')+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+    showActionFeedback('success',t('pdfSuccess'));
+  }catch(e){if(e.message!=='VALIDATION_FIELDS')showActionFeedback('error',e.message);}
+  finally{setPdfBusy(false);}
+};
+
+const baseSetPdfBusy=setPdfBusy;
+setPdfBusy=function(busy){baseSetPdfBusy(busy);const button=document.querySelector('#generatePdf');button.setAttribute('aria-busy',String(busy));};
+/* ITB_CLIENT_DEMO_POLISH_END */
 init();
