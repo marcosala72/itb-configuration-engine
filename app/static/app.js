@@ -397,13 +397,13 @@ function closeSelectedItemsDrawerV2() {
 /* ITB_CLIENT_DEMO_POLISH_START */
 Object.assign(I18N.EN, {
   engineSuffix: 'Select another engine to replace the current one.',
-  engineBadge: 'REQUIRED Â· SELECT ONE', currentEngine: 'CURRENT ENGINE', replaceEngine: 'SELECT TO REPLACE',
+  engineBadge: 'REQUIRED \u00B7 SELECT ONE', currentEngine: 'CURRENT ENGINE', replaceEngine: 'SELECT TO REPLACE',
   saveBusy: 'Saving...', saveSuccess: 'Configuration saved successfully:', saveFailed: 'Unable to save the configuration.',
   pdfBusy: 'Generating PDF...', pdfSuccess: 'PDF generated successfully.'
 });
 Object.assign(I18N.IT, {
   engineSuffix: 'Seleziona un altro motore per sostituire quello attuale.',
-  engineBadge: 'OBBLIGATORIO Â· SCEGLI UNO', currentEngine: 'MOTORE ATTUALE', replaceEngine: 'SELEZIONA PER SOSTITUIRE',
+  engineBadge: 'OBBLIGATORIO \u00B7 SCEGLI UNO', currentEngine: 'MOTORE ATTUALE', replaceEngine: 'SELEZIONA PER SOSTITUIRE',
   saveBusy: 'Salvataggio...', saveSuccess: 'Configurazione salvata correttamente:', saveFailed: 'Impossibile salvare la configurazione.',
   pdfBusy: 'Generazione PDF...', pdfSuccess: 'PDF generato correttamente.'
 });
@@ -430,12 +430,18 @@ renderGroup=function(){
   if(!badge){badge=document.createElement('span');badge.id='groupModeBadge';badge.className='group-mode-badge';document.querySelector('#groupTitle').insertAdjacentElement('afterend',badge);}
   badge.textContent=group.code==='ENGINES'?t('engineBadge'):'';
   badge.classList.toggle('visible',group.code==='ENGINES');
+  if(group.max===1){
+    const required=group.min===1;
+    document.querySelector('#groupHint').textContent=uiLanguage==='IT'
+      ? (required ? "Scelta obbligatoria. Seleziona un'altra opzione per sostituire quella attuale." : "Scelta facoltativa. Seleziona un'altra opzione per sostituirla, oppure seleziona di nuovo quella attuale per rimuoverla.")
+      : (required ? 'Required choice. Select another option to replace the current one.' : 'Optional choice. Select another option to replace it, or select the current choice again to remove it.');
+  }
   if(group.code==='ENGINES'){
-    document.querySelector('#groupHint').textContent=uiLanguage==='IT'?'Seleziona un altro motore per sostituire quello attuale.':'Select another engine to replace the current one.';
     result.options.filter(o=>o.group==='ENGINES').forEach(o=>{
       const card=document.querySelector(`.card[onclick="toggle('${o.code}')"]`);
       if(card){const status=card.querySelector('.status');if(status)status.textContent=o.selected?t('currentEngine'):t('replaceEngine');card.classList.remove('disabled');}
     });
+  });
   }
 };
 
