@@ -144,7 +144,8 @@ async function evaluate() {
 
 function toggle(code) {
   const option=result.options.find(x=>x.code===code);
-  if(!option || (!option.available && !option.selected)) return;
+  if(!option) return;
+  if(option.group!=='ENGINES' && !option.available && !option.selected) return;
   const selecting=!selected.includes(code);
   if(option.group==='ENGINES') {
     if(!selecting) return;
