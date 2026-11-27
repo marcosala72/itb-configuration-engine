@@ -145,16 +145,29 @@ async function evaluate() {
 function toggle(code) {
   const option=result.options.find(x=>x.code===code);
   if(!option) return;
-  if(option.group!=='ENGINES' && !option.available && !option.selected) return;
-  const selecting=!selected.includes(code);
-  if(option.group==='ENGINES') {
-    if(!selecting) return;
-    const engineCodes=result.options.filter(x=>x.group==='ENGINES').map(x=>x.code);
-    selected=selected.filter(x=>!engineCodes.includes(x));
-    selected.push(code);
-  } else {
-    selected=selecting?[...selected,code]:selected.filter(x=>x!==code);
+
+  const group=catalog.groups.find(x=>x.code===option.group);
+  const isSingle=group && group.max===1;
+  const isSelected=selected.includes(code);
+
+  // A single-choice group always replaces its current value directly.
+  // Required groups cannot be left empty; optional groups can be cleared
+  // by clicking the currently selected card.
+  if(isSingle) {
+    if(isSelected) {
+      if(group.min===1) return;
+      selected=selected.filter(x=>x!==code);
+    } else {
+      const groupCodes=result.options.filter(x=>x.group===option.group).map(x=>x.code);
+      selected=selected.filter(x=>!groupCodes.includes(x));
+      selected.push(code);
+    }
+    evaluate();
+    return;
   }
+
+  if(!option.available && !option.selected) return;
+  selected=isSelected?[...selected.filter(x=>x!==code)]:[...selected,code];
   evaluate();
 }
 
@@ -178,7 +191,12 @@ function renderNav(){
 function renderGroup(){
   const group=catalog.groups.find(x=>x.code===activeGroup);
   document.querySelector('#groupTitle').textContent=I18N[uiLanguage].groups[group.code]||group.label;
-  document.querySelector('#groupHint').textContent=group.max===1?(group.min===1?t('one'):t('single')):t('multiple');
+  const groupHint = group.max===1
+    ? (group.min===1
+      ? (uiLanguage==='IT' ? 'Scelta obbligatoria. Seleziona unâ€™altra opzione per sostituire quella attuale.' : 'Required choice. Select another option to replace the current one.')
+      : (uiLanguage==='IT' ? 'Scelta facoltativa. Seleziona unâ€™altra opzione per sostituirla, oppure riclicca quella attuale per rimuoverla.' : 'Optional choice. Select another option to replace it, or click the current choice again to remove it.'))
+    : t('multiple');
+  document.querySelector('#groupHint').textContent=groupHint;
   const msg=[];const guide=guidance();if(guide)msg.push(`<div class="guidance">${guide}</div>`);
   result.violations.filter(relevantViolation).forEach(v=>msg.push(`<div class="error">${esc(ruleText(v))}</div>`));
   document.querySelector('#errors').innerHTML=msg.join('');
