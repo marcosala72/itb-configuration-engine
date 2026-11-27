@@ -118,10 +118,10 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
   --itb-left-nav-active-font-size: 13.5px;
   --itb-left-number-font-size: 9px;
   --itb-left-heading-font-size: 9px;
-  --itb-summary-label-font-size: 9.5px;
-  --itb-summary-body-font-size: 11px;
-  --itb-summary-action-font-size: 9.5px;
-  --itb-summary-saved-font-size: 10px;
+  --itb-summary-label-font-size: 10px;
+  --itb-summary-body-font-size: 12px;
+  --itb-summary-action-font-size: 10.5px;
+  --itb-summary-saved-font-size: 11px;
 }
 
 /* Left menu: larger text and enough width for long EN/IT labels. */
@@ -159,7 +159,7 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
   line-height: 1.22 !important;
 }
 .summary-column .selected-more-button {
-  font-size: 9px;
+  font-size: 10px;
 }
 .summary-column .actions button {
   font-size: var(--itb-summary-action-font-size) !important;
@@ -169,7 +169,7 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
   line-height: 1.25;
 }
 .summary-column .saved-actions button {
-  font-size: 9px;
+  font-size: 10px;
 }
 
 /* Preserve space on medium laptops without returning to the former 190 px rail. */
@@ -187,11 +187,11 @@ body.drawer-open-v2{overflow:hidden!important}.selected-drawer-v2{position:fixed
   }
   .summary-column .customer label,
   .summary-column .discount label {
-    font-size: 9px !important;
+    font-size: 10px !important;
   }
   .summary-column .selected-list .pick,
   .summary-column .sub {
-    font-size: 10.5px !important;
+    font-size: 11.5px !important;
   }
 }
 
