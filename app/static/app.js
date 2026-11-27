@@ -14,7 +14,7 @@ const I18N = {
     boatDiscount: 'Boat discount %', accessoriesDiscount: 'Accessories discount %', saveOnline: 'Save online',
     generatePdf: 'Generate PDF', searchSaved: 'Search saved', multiple: 'Multiple selection', single: 'Single selection', one: 'Select one option',
     selected: 'Selected', available: 'Available', unavailable: 'Not available', noSelection: 'No option selected.',
-    boat: 'Boat', accessories: 'Accessories', discounts: 'Discounts', total: 'Total',
+    boat: 'Base boat', engine: 'Engine', accessories: 'Accessories', discounts: 'Discounts', total: 'Total',
     saved: 'Configuration saved:', searchPrompt: 'Search by last name, company, code or configuration name:',
     noneSaved: 'No saved configuration found.', open: 'Open', delete: 'Delete',
     requiredFirst: 'Enter the first name.', requiredLast: 'Enter the last name.', requiredConfig: 'Enter a configuration name.',
@@ -33,7 +33,7 @@ const I18N = {
     boatDiscount: 'Sconto imbarcazione %', accessoriesDiscount: 'Sconto accessori %', saveOnline: 'Salva online',
     generatePdf: 'Genera PDF', searchSaved: 'Cerca salvate', multiple: 'Selezione multipla', single: 'Selezione singola', one: 'Seleziona una sola opzione',
     selected: 'Selezionato', available: 'Disponibile', unavailable: 'Non disponibile', noSelection: 'Nessuna opzione selezionata.',
-    boat: 'Imbarcazione', accessories: 'Accessori', discounts: 'Sconti', total: 'Totale',
+    boat: 'Imbarcazione base', engine: 'Motore', accessories: 'Accessori', discounts: 'Sconti', total: 'Totale',
     saved: 'Configurazione salvata:', searchPrompt: 'Cerca per cognome, azienda, codice o nome configurazione:',
     noneSaved: 'Nessuna configurazione trovata.', open: 'Apri', delete: 'Elimina',
     requiredFirst: 'Inserisci il nome.', requiredLast: 'Inserisci il cognome.', requiredConfig: 'Inserisci un nome per la configurazione.',
@@ -70,7 +70,7 @@ async function init() {
   try {
     catalog = await api('/api/v1/models/BS120OB');
     activeGroup = catalog.groups[0].code;
-    selected = [];
+    selected = [catalog.model.defaultEngineCode || 'ENGINE_F300'];
     discounts = { boatPct:0, accessoriesPct:0 };
     wire();
     applyStaticTranslations();
@@ -125,7 +125,7 @@ function applyStaticTranslations() {
 }
 
 function resetConfiguration() {
-  selected=[]; discounts={boatPct:0,accessoriesPct:0}; currentSavedCode=null; activeGroup=catalog.groups[0].code;
+  selected=[catalog.model.defaultEngineCode || 'ENGINE_F300']; discounts={boatPct:0,accessoriesPct:0}; currentSavedCode=null; activeGroup=catalog.groups[0].code;
   ['firstName','lastName','company','configurationName'].forEach(id => document.querySelector('#'+id).value='');
   document.querySelector('#boatDiscount').value=0; document.querySelector('#accDiscount').value=0;
   document.querySelector('#savedPanel').innerHTML='';
@@ -146,8 +146,14 @@ function toggle(code) {
   const option=result.options.find(x=>x.code===code);
   if(!option || (!option.available && !option.selected)) return;
   const selecting=!selected.includes(code);
-  selected=selecting?[...selected,code]:selected.filter(x=>x!==code);
-  if(selecting && option.group==='ENGINES') activeGroup='PROPULSION';
+  if(option.group==='ENGINES') {
+    if(!selecting) return;
+    const engineCodes=result.options.filter(x=>x.group==='ENGINES').map(x=>x.code);
+    selected=selected.filter(x=>!engineCodes.includes(x));
+    selected.push(code);
+  } else {
+    selected=selecting?[...selected,code]:selected.filter(x=>x!==code);
+  }
   evaluate();
 }
 
@@ -215,7 +221,7 @@ function setPdfBusy(busy){
 }
 async function findSaved(ask=true){try{const query=ask?(prompt(t('searchPrompt'),'')??''):'';const data=await api(`/api/v1/saved-configurations?query=${encodeURIComponent(query)}`);document.querySelector('#savedPanel').innerHTML=data.items.length?data.items.map(savedCard).join(''):`<p>${t('noneSaved')}</p>`;}catch(e){alert(e.message);}}
 function savedCard(item){const c=item.customer||{};const company=c.company?` - ${esc(c.company)}`:'';const date=item.updatedAt?new Date(item.updatedAt).toLocaleString(uiLanguage==='IT'?'it-IT':'en-GB'):'';return`<div class="saved-item"><b>${esc(item.configurationCode)} - ${esc(item.configurationName)}</b><div>${esc(c.firstName||'')} ${esc(c.lastName||'')}${company}</div><div>${euro(item.pricingSnapshot?.netTotal||0)} - ${esc(date)}</div><div class="saved-actions"><button type="button" onclick="openSaved('${item.configurationCode}')">${t('open')}</button><button type="button" onclick="deleteSaved('${item.configurationCode}')">${t('delete')}</button></div></div>`;}
-async function openSaved(code){const item=await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`);currentSavedCode=item.configurationCode;selected=item.selectedOptions||[];discounts=item.discounts||{boatPct:0,accessoriesPct:0};document.querySelector('#firstName').value=item.customer?.firstName||'';document.querySelector('#lastName').value=item.customer?.lastName||'';document.querySelector('#company').value=item.customer?.company||'';document.querySelector('#configurationName').value=item.configurationName||'';document.querySelector('#boatDiscount').value=discounts.boatPct;document.querySelector('#accDiscount').value=discounts.accessoriesPct;activeGroup=catalog.groups[0].code;updateSaveValidation();await evaluate();}
+async function openSaved(code){const item=await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`);currentSavedCode=item.configurationCode;selected=item.selectedOptions||[];if(!selected.some(code=>catalog.options.some(option=>option.code===code&&option.group==='ENGINES')))selected=[catalog.model.defaultEngineCode||'ENGINE_F300',...selected];discounts=item.discounts||{boatPct:0,accessoriesPct:0};document.querySelector('#firstName').value=item.customer?.firstName||'';document.querySelector('#lastName').value=item.customer?.lastName||'';document.querySelector('#company').value=item.customer?.company||'';document.querySelector('#configurationName').value=item.configurationName||'';document.querySelector('#boatDiscount').value=discounts.boatPct;document.querySelector('#accDiscount').value=discounts.accessoriesPct;activeGroup=catalog.groups[0].code;updateSaveValidation();await evaluate();}
 async function deleteSaved(code){if(!confirm(`${t('deleteConfirm')} ${code}?`))return;await api(`/api/v1/saved-configurations/${encodeURIComponent(code)}`,{method:'DELETE'});if(currentSavedCode===code)currentSavedCode=null;await findSaved(false);}
 
 
@@ -320,6 +326,7 @@ renderSummary = function() {
   const p = result.pricing;
   document.querySelector('#pricing').innerHTML = `
     <div class="sub"><span>${t('boat')}</span><b>${formatEuroEuropean(p.boatSubtotal)}</b></div>
+    <div class="sub"><span>${t('engine')}</span><b>${formatEuroEuropean(p.engineSubtotal)}</b></div>
     <div class="sub"><span>${t('accessories')}</span><b>${formatEuroEuropean(p.accessoriesSubtotal)}</b></div>
     <div class="sub"><span>${t('discounts')}</span><b>-${formatEuroEuropean(p.discountTotal)}</b></div>
     <div class="total"><span>${t('total')}</span><span>${formatEuroEuropean(p.netTotal)}</span></div>`;

@@ -4,7 +4,9 @@
                   "name":  "Black Shiver 120 Outboard",
                   "catalogVersion":  "POC-2",
                   "currency":  "EUR",
-                  "hero":  "/static/assets/boat.png"
+                  "hero":  "/static/assets/boat.png",
+                  "basePrice":  3000000,
+                  "defaultEngineCode":  "ENGINE_F300"
               },
     "groups":  [
                    {

@@ -43,11 +43,11 @@ def evaluate(req:EvaluateRequest):
     applied.append(r['id']); other=[g for g in r['groups'] if g not in active]
     for c,o in OPTIONS.items():
      if o['group'] in other: disabled[c]=r['message']
- engine_codes={c for c,o in OPTIONS.items() if o['group']=='ENGINES'}; boat=sum(OPTIONS[c]['price'] for c in ss&engine_codes)
+ engine_codes={c for c,o in OPTIONS.items() if o['group']=='ENGINES'}; base=CAT['model'].get('basePrice',0); engine=sum(OPTIONS[c]['price'] for c in ss&engine_codes)
  accessories=sum(OPTIONS[c]['price'] for c in ss-engine_codes if OPTIONS[c].get('discountable',True)); fixed=sum(OPTIONS[c]['price'] for c in ss-engine_codes if not OPTIONS[c].get('discountable',True))
- bd=round(boat*req.discounts.boatPct/100,2); ad=round(accessories*req.discounts.accessoriesPct/100,2); total=round(boat+accessories+fixed-bd-ad,2)
+ bd=round(base*req.discounts.boatPct/100,2); ad=round((engine+accessories)*req.discounts.accessoriesPct/100,2); total=round(base+engine+accessories+fixed-bd-ad,2)
  states=[{**o,'selected':c in ss,'available':c not in disabled,'disabledReason':disabled.get(c)} for c,o in OPTIONS.items()]
- return {'valid':not violations,'modelCode':req.modelCode,'catalogVersion':CAT['model']['catalogVersion'],'selectedOptions':selected,'options':states,'violations':violations,'appliedRules':applied,'pricing':{'boatSubtotal':boat,'accessoriesSubtotal':accessories+fixed,'discountTotal':bd+ad,'netTotal':total,'currency':'EUR'}}
+ return {'valid':not violations,'modelCode':req.modelCode,'catalogVersion':CAT['model']['catalogVersion'],'selectedOptions':selected,'options':states,'violations':violations,'appliedRules':applied,'pricing':{'boatSubtotal':base,'engineSubtotal':engine,'accessoriesSubtotal':accessories+fixed,'discountTotal':bd+ad,'netTotal':total,'currency':'EUR'}}
 
 
 class CustomerData(BaseModel):
